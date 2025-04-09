@@ -1,0 +1,47 @@
+{
+  "log": {
+    "loglevel": "info"
+  },
+  "inbounds": [
+    {
+      "port": 8080,
+      "protocol": "http",
+      "settings": {
+        "timeout": 300
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "92.118.148.71",
+            "port": 443,
+            "users": [
+              {
+                "id": "8aa16aca-9860-49a7-b5d5-378b87969516",
+                "encryption": "none",
+                "flow": "",
+                "level": 0
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "fingerprint": "chrome",
+          "serverName": "google.com",
+          "publicKey": "PORIoDHh-nKogitF2H0SILE7RH7FxFmJgYyx0BAmHi4",
+          "shortId": "9064a6ac",
+          "spiderX": "/"
+        }
+      }
+    }
+  ]
+}
