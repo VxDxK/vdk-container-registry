@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-
 import pathlib
 import logging
+import logging.handlers
 from dataclasses import dataclass, field
 import os
+import sys
 import json
 from typing import Optional
 import subprocess
 from tap import Tap
 
 IMAGE_OWNER = "vxdxk"
+
+if os.getenv("GITHUB_ACTIONS") == "true":
+    IMAGE_OWNER = f"ghcr.io/{IMAGE_OWNER}"
+
 EXCLUDED_DIRS = set([
     ".git",
     ".github",
@@ -24,6 +29,12 @@ class ArgumentParser(Tap):
 def execute_command(command: list[str]):
     logging.info(f"Executing command={command}")
     subprocess.run(command, check=True) 
+
+class ExitHandler(logging.StreamHandler):
+    def emit(self, record):
+        super().emit(record)
+        if record.levelno in (logging.ERROR, logging.CRITICAL):
+            sys.exit(1)
 
 @dataclass
 class ImageConfig:
@@ -106,5 +117,6 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=log_level,
         format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] %(funcName)s() -> %(message)s',
+        handlers=[ExitHandler()]
     )
     main()

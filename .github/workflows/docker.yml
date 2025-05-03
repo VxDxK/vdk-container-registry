@@ -11,9 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Log in to ghcr.io
+      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
     - uses: actions/setup-python@v5
       with:
         python-version: '3.13'
         cache: 'pip' # caching pip dependencies
-    - run: pip install -r requirements.txt
-    - run: ./build.py --image all
+    - name: Install build script dependencies
+      run: pip install -r requirements.txt
+    - name: Building images
+      run: ./build.py --image xray
+    - name: Push images
+      run: docker push ghcr.io/vxdxk/xray:latest
