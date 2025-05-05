@@ -1,1 +1,2 @@
 typed-argument-parser
+pydantic

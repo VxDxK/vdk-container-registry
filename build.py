@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import pathlib
 import logging
-import logging.handlers
-from dataclasses import dataclass, field
 import os
 import sys
 import json
 from typing import Optional
 import subprocess
 from tap import Tap
+from pydantic import BaseModel, Field
 
 IMAGE_OWNER = "vxdxk"
 
@@ -36,13 +35,15 @@ class ExitHandler(logging.StreamHandler):
         if record.levelno in (logging.ERROR, logging.CRITICAL):
             sys.exit(1)
 
-@dataclass
-class ImageConfig:
-    tag: str
-    dependencies: list[str] = field(default_factory=list)
+class ImageConfig(BaseModel):
+    tag: str = "latest"
+    dependencies: list[str] = Field(default_factory=list)
+    deploy: bool = True
 
     def __str__(self) -> str:
-        return f"tag={self.tag} dependencies={self.dependencies}"
+        return '%s' % (
+            ' '.join('%s=%s' % item for item in vars(self).items())
+        )
 
 TargetsDict = dict[str, tuple[pathlib.Path, ImageConfig]]
 def show_targets(targets: TargetsDict):
@@ -60,15 +61,7 @@ def load_meta_file() -> Optional[ImageConfig]:
     
     try:
         with open(meta_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            dependencies = data.get('dependencies', [])
-            if not isinstance(dependencies, list):
-                logging.error("Field 'dependencies' must be a list")
-                return None
-            return ImageConfig(
-                tag=data.get('tag', 'latest'),
-                dependencies=[str(item) for item in dependencies]
-            )
+            return ImageConfig.model_validate_json(f.read())
     except json.JSONDecodeError as e:
         logging.error("Failed to parse JSON: %s", str(e))
         return None
