@@ -2,7 +2,6 @@ FROM alpine:latest
 LABEL maintainer="VxDxK"
 
 ARG XRAY_CORE_VERSION=v25.3.6
-ARG T2S_VERSION=v2.5.2
 
 RUN set -e &&\
     apk add --no-cache bash &&\

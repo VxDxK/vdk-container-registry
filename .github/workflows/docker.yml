@@ -3,21 +3,31 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Log in to ghcr.io
-      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
-        cache: 'pip' # caching pip dependencies
-    - name: Install build script dependencies
-      run: pip install -r requirements.txt
-    - name: Building images
-      run: ./build.py --image xray
-    - name: Push images
-      run: docker push ghcr.io/vxdxk/xray:latest
+      - uses: actions/checkout@v4
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('build.py') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Run build.py
+        run: |
+          chmod +x build.py
+          ./build.py show
