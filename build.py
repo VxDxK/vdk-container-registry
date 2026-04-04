@@ -37,7 +37,7 @@ EXCLUDED_DIRS: set[str] = {
     ".venv",
     ".idea",
     "__pycache__",
-    "*egg-info",
+    "*egg-info", # TODO: Add regex support for excludes
 }
 
 SHARED_DIRS: set[Path] = set()
@@ -202,7 +202,7 @@ app = typer.Typer(
 def _load_all_targets() -> TargetsDict:
     targets: TargetsDict = {}
     for entry in REPO_DIR.iterdir():
-        if entry.is_dir() and entry.name not in EXCLUDED_DIRS:
+        if entry.is_dir() and entry.name not in EXCLUDED_DIRS and not entry.name.startswith("."):
             meta_path: Path = entry / "meta.json"
             meta_info: Optional[ImageConfig] = load_meta_file(meta_path)
             if meta_info:
