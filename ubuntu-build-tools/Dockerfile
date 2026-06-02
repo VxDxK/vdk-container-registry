@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     libssl-dev \
+    pkg-config \
+    liburing-dev \
     gcc-${GCC_VERSION} g++-${GCC_VERSION} \
     clang-${CLANG_VERSION} lld-${CLANG_VERSION} libc++-${CLANG_VERSION}-dev libc++abi-${CLANG_VERSION}-dev \
     llvm-${CLANG_VERSION}-dev libclang-${CLANG_VERSION}-dev \
