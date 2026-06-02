@@ -11,6 +11,7 @@
 import pathlib
 import logging
 import os
+import re
 import sys
 from typing import Optional, Annotated
 import subprocess
@@ -37,7 +38,7 @@ EXCLUDED_DIRS: set[str] = {
     ".venv",
     ".idea",
     "__pycache__",
-    "*egg-info", # TODO: Add regex support for excludes
+    r".*egg-info",  # TODO: Add regex support for excludes
 }
 
 SHARED_DIRS: set[Path] = set()
@@ -75,6 +76,13 @@ def get_shared_context_flags() -> list[str]:
         name: str = shared_path.name
         flags.extend(["--build-context", f"{name}={shared_path.resolve()}"])
     return flags
+
+
+def is_excluded_dir(name: str) -> bool:
+    for pattern in EXCLUDED_DIRS:
+        if re.fullmatch(pattern, name):
+            return True
+    return False
 
 
 def image_build(name: str, config: ImageConfig, context: Path) -> None:
@@ -202,7 +210,7 @@ app = typer.Typer(
 def _load_all_targets() -> TargetsDict:
     targets: TargetsDict = {}
     for entry in REPO_DIR.iterdir():
-        if entry.is_dir() and entry.name not in EXCLUDED_DIRS and not entry.name.startswith("."):
+        if entry.is_dir() and not is_excluded_dir(entry.name) and not entry.name.startswith("."):
             meta_path: Path = entry / "meta.json"
             meta_info: Optional[ImageConfig] = load_meta_file(meta_path)
             if meta_info:

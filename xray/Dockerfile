@@ -12,7 +12,7 @@ RUN set -e &&\
     rm -rf Xray-linux-64.zip && \
     rm /opt/xray/LICENSE && \
     rm /opt/xray/README.md && \
-    rm /opt/xray/geo*.dat
+    mv /opt/xray/*.dat ${XRAY_LOCATION_ASSET}/
 
 WORKDIR /opt/xray
 
